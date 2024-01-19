@@ -14,24 +14,27 @@
 
 static char	*fill_stash(int fd, char *buff, char *stash)
 {
-	int		read_line;
-	char	*char_temp;
+	int		bytes;
+	char	*aux;
 
-	read_line = 1;
-	while (read_line != '\0')
+	bytes = 1;
+	while (bytes > 0)
 	{
-		read_line = read(fd, buff, BUFFER_SIZE);
-		if (read_line == -1)
-			return (0);
-		else if (read_line == 0)
+		bytes = read(fd, buff, BUFFER_SIZE);
+		if (bytes == 0)
 			break ;
-		buff[read_line] = '\0';
+		else if (bytes == -1)
+		{
+			free(stash);
+			return (NULL);
+		}
+		buff[bytes] = '\0';
 		if (!stash)
 			stash = ft_strdup("");
-		char_temp = stash;
-		stash = ft_strjoin(char_temp, buff);
-		free(char_temp);
-		char_temp = NULL;
+		aux = stash;
+		stash = ft_strjoin(aux, buff);
+		free(aux);
+		aux = NULL;
 		if (ft_strchr (buff, '\n'))
 			break ;
 	}
@@ -40,21 +43,23 @@ static char	*fill_stash(int fd, char *buff, char *stash)
 
 static char	*extract_line(char *line)
 {
-	size_t	count;
+	size_t	i;
 	char	*stash;
 
-	count = 0;
-	while (line[count] != '\n' && line[count] != '\0')
-		count++;
-	if (line[count] == '\0' || line[1] == '\0')
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (line[i] != '\n' && line[i] != '\0')
+		i++;
+	if (line[i] == '\0' || line[1] == '\0')
 		return (0);
-	stash = ft_substr(line, count + 1, ft_strlen(line) - count);
+	stash = ft_substr(line, i + 1, ft_strlen(line) - i);
 	if (*stash == '\0')
 	{
 		free(stash);
 		stash = NULL;
 	}
-	line[count + 1] = '\0';
+	line[i + 1] = '\0';
 	return (stash);
 }
 
